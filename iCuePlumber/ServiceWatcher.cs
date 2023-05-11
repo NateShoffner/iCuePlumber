@@ -6,7 +6,7 @@ using System.Management;
 using System.ServiceProcess;
 using System.Timers;
 
-namespace iCuePlumber.Console
+namespace iCuePlumber
 {
     partial class Program
     {
@@ -46,7 +46,7 @@ namespace iCuePlumber.Console
 
                 if (service == null)
                 {
-                    System.Console.WriteLine($"Could not find service: {_serviceName}");
+                    Console.WriteLine($"Could not find service: {_serviceName}");
                     return;
                 }
 
@@ -54,7 +54,7 @@ namespace iCuePlumber.Console
 
                 if (process == null)
                 {
-                    System.Console.WriteLine($"Could not find process for service: {_serviceName}");
+                    Console.WriteLine($"Could not find process for service: {_serviceName}");
                     return;
                 }
 
@@ -64,13 +64,13 @@ namespace iCuePlumber.Console
 
                 if (kb < _memoryThreshold)
                 {
-                    System.Console.WriteLine($"Memory usage for service {service.DisplayName} is below limit. {kb}KB < {_memoryThreshold}KB");
+                    Console.WriteLine($"Memory usage for service {service.DisplayName} is below limit. {kb}KB < {_memoryThreshold}KB");
                     return;
                 }
 
-                System.Console.WriteLine($"Memory usage for service {service.DisplayName} is above limit. {kb}KB > {_memoryThreshold}KB");
+                Console.WriteLine($"Memory usage for service {service.DisplayName} is above limit. {kb}KB > {_memoryThreshold}KB");
 
-                System.Console.WriteLine("Stopping service...");
+                Console.WriteLine("Stopping service...");
 
                 try
                 {
@@ -79,11 +79,11 @@ namespace iCuePlumber.Console
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine($"Error stopping service: {ex.Message}");
+                    Console.WriteLine($"Error stopping service: {ex.Message}");
                     return;
                 }
 
-                System.Console.WriteLine("Starting service...");
+                Console.WriteLine("Starting service...");
 
                 try
                 {
@@ -91,11 +91,11 @@ namespace iCuePlumber.Console
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine($"Error starting service: {ex.Message}");
+                    Console.WriteLine($"Error starting service: {ex.Message}");
                     return;
                 }
 
-                System.Console.WriteLine("Service restarted.");
+                Console.WriteLine("Service restarted.");
 
 
             }

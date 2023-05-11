@@ -2,7 +2,7 @@
 using System;
 using Topshelf;
 
-namespace iCuePlumber.Console
+namespace iCuePlumber
 {
     partial class Program
     {
@@ -22,8 +22,8 @@ namespace iCuePlumber.Console
         {
             var options = Parser.Default.ParseArguments<Options>(args);
 
-            System.Console.WriteLine($"Memory Limit: {options.Value.MemoryLimit}KB");
-            System.Console.WriteLine($"Polling Rate: {options.Value.PollingRate}ms");
+            Console.WriteLine($"Memory Limit: {options.Value.MemoryLimit}KB");
+            Console.WriteLine($"Polling Rate: {options.Value.PollingRate}ms");
 
             var exitCode = HostFactory.Run(x =>
             {
