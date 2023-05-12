@@ -11,7 +11,7 @@ namespace iCuePlumber
             [Option('n', "name", Required = false, Default = "CorsairService", HelpText = "The name of the service to monitor.")]
             public string ServiceName { get; set; }
 
-            [Option('m', "memlimit", Required = false, Default = 20000, HelpText = "The memory limit (in kilobytes) at which to interrupt the service.")]
+            [Option('m', "memlimit", Required = false, Default = 500000, HelpText = "The memory limit (in kilobytes) at which to interrupt the service.")]
             public long MemoryLimit { get; set; }
 
             [Option('r', "rate", Required = false, Default = 10 * 60 * 1000, HelpText = "The rate (in milliseconds) at which to poll the service.")]
