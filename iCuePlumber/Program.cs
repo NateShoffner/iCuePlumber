@@ -8,7 +8,7 @@ namespace iCuePlumber
     {
         public class Options
         {
-            [Option('n', "name", Required = false, Default = "CorsiarService", HelpText = "The name of the service to monitor.")]
+            [Option('n', "name", Required = false, Default = "CorsairService", HelpText = "The name of the service to monitor.")]
             public string ServiceName { get; set; }
 
             [Option('m', "memlimit", Required = false, Default = 20000, HelpText = "The memory limit (in kilobytes) at which to interrupt the service.")]
