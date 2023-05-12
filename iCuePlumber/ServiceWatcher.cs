@@ -33,6 +33,7 @@ namespace iCuePlumber
             public void Start()
             {
                 _timer.Start();
+                CheckService();
             }
 
             public void Stop()
