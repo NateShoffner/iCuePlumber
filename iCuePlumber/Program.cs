@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using System;
+using System.Diagnostics;
 using Topshelf;
 
 namespace iCuePlumber
@@ -20,16 +21,24 @@ namespace iCuePlumber
 
         static void Main(string[] args)
         {
+            EventLog eventLog = new EventLog
+            {
+                Source = "iCUEPlumber",
+                Log = "Application"
+            };
+
             var options = Parser.Default.ParseArguments<Options>(args);
 
             Console.WriteLine($"Memory Limit: {options.Value.MemoryLimit}KB");
             Console.WriteLine($"Polling Rate: {options.Value.PollingRate}ms");
 
+            eventLog.WriteEntry($"iCUE Plumber started with memory limit {options.Value.MemoryLimit}KB and polling rate {options.Value.PollingRate}ms.", EventLogEntryType.Information);
+
             var exitCode = HostFactory.Run(x =>
             {
                 x.Service<ServiceWatcher>(s =>
                 {
-                    s.ConstructUsing(name => new ServiceWatcher(options.Value.ServiceName, options.Value.PollingRate, options.Value.MemoryLimit));
+                    s.ConstructUsing(name => new ServiceWatcher(options.Value.ServiceName, options.Value.PollingRate, options.Value.MemoryLimit, eventLog));
                     s.WhenStarted(tc => tc.Start());
                     s.WhenStopped(tc => tc.Stop());
                 });
@@ -43,6 +52,8 @@ namespace iCuePlumber
 
             var exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
             Environment.ExitCode = exitCodeValue;
+
+            eventLog.WriteEntry($"iCUE Plumber exited with code {exitCodeValue}.", EventLogEntryType.Information);
         }
 
     }

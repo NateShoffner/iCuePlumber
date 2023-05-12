@@ -15,11 +15,13 @@ namespace iCuePlumber
             private readonly Timer _timer;
             private readonly string _serviceName;
             private readonly long _memoryThreshold;
+            private readonly EventLog _logger;
 
-            public ServiceWatcher(string serviceName, double pollingRate, long memoryThreshold)
+            public ServiceWatcher(string serviceName, double pollingRate, long memoryThreshold, EventLog logger)
             {
                 _serviceName = serviceName;
                 _memoryThreshold = memoryThreshold;
+                _logger = logger;
                 _timer = new Timer(pollingRate) { AutoReset = true };
                 _timer.Elapsed += OnTimerElapsed;
 
@@ -48,6 +50,7 @@ namespace iCuePlumber
                 if (service == null)
                 {
                     Console.WriteLine($"Could not find service: {_serviceName}");
+                    _logger.WriteEntry($"Could not find service: {_serviceName}", EventLogEntryType.Error);
                     return;
                 }
 
@@ -56,6 +59,7 @@ namespace iCuePlumber
                 if (process == null)
                 {
                     Console.WriteLine($"Could not find process for service: {_serviceName}");
+                    _logger.WriteEntry($"Could not find process for service: {_serviceName}", EventLogEntryType.Error);
                     return;
                 }
 
@@ -70,7 +74,7 @@ namespace iCuePlumber
                 }
 
                 Console.WriteLine($"Memory usage for service {service.DisplayName} is above limit. {kb}KB > {_memoryThreshold}KB");
-
+                _logger.WriteEntry($"Memory usage for service {service.DisplayName} is above limit. {kb}KB > {_memoryThreshold}KB", EventLogEntryType.Warning);
                 Console.WriteLine("Stopping service...");
 
                 try
@@ -81,6 +85,7 @@ namespace iCuePlumber
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error stopping service: {ex.Message}");
+                    _logger.WriteEntry($"Error stopping service: {ex.Message}", EventLogEntryType.Error);
                     return;
                 }
 
@@ -93,12 +98,12 @@ namespace iCuePlumber
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error starting service: {ex.Message}");
+                    _logger.WriteEntry($"Error starting service: {ex.Message}", EventLogEntryType.Error);
                     return;
                 }
 
                 Console.WriteLine("Service restarted.");
-
-
+                _logger.WriteEntry($"Service successfully restarted.", EventLogEntryType.Information);
             }
 
             private Process GetServiceProcess(ServiceController service)
