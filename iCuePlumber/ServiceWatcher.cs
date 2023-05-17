@@ -1,5 +1,4 @@
-﻿using CommandLine;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
@@ -24,7 +23,6 @@ namespace iCuePlumber
                 _logger = logger;
                 _timer = new Timer(pollingRate) { AutoReset = true };
                 _timer.Elapsed += OnTimerElapsed;
-
             }
 
             private void OnTimerElapsed(object sender, EventArgs e)

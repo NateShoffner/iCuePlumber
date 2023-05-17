@@ -1,5 +1,4 @@
-﻿using CommandLine;
-using System;
+﻿using System;
 using System.Diagnostics;
 using Topshelf;
 
@@ -7,18 +6,6 @@ namespace iCuePlumber
 {
     partial class Program
     {
-        public class Options
-        {
-            [Option('n', "name", Required = false, Default = "CorsairService", HelpText = "The name of the service to monitor.")]
-            public string ServiceName { get; set; }
-
-            [Option('m', "memlimit", Required = false, Default = 500000, HelpText = "The memory limit (in kilobytes) at which to interrupt the service.")]
-            public long MemoryLimit { get; set; }
-
-            [Option('r', "rate", Required = false, Default = 10 * 60 * 1000, HelpText = "The rate (in milliseconds) at which to poll the service.")]
-            public double PollingRate { get; set; }
-        }
-
         static void Main(string[] args)
         {
             EventLog eventLog = new EventLog
@@ -27,27 +14,34 @@ namespace iCuePlumber
                 Log = "Application"
             };
 
-            var options = Parser.Default.ParseArguments<Options>(args);
-
-            Console.WriteLine($"Memory Limit: {options.Value.MemoryLimit}KB");
-            Console.WriteLine($"Polling Rate: {options.Value.PollingRate}ms");
-
-            eventLog.WriteEntry($"iCUE Plumber started with memory limit {options.Value.MemoryLimit}KB and polling rate {options.Value.PollingRate}ms.", EventLogEntryType.Information);
+            string serviceName = "CorsairService";
+            double pollingRate = 10 * 60 * 1000;
+            long memoryLimit = 500000;
 
             var exitCode = HostFactory.Run(x =>
             {
-                x.Service<ServiceWatcher>(s =>
-                {
-                    s.ConstructUsing(name => new ServiceWatcher(options.Value.ServiceName, options.Value.PollingRate, options.Value.MemoryLimit, eventLog));
-                    s.WhenStarted(tc => tc.Start());
-                    s.WhenStopped(tc => tc.Stop());
-                });
-
                 x.RunAsLocalSystem();
 
                 x.SetDescription("Monitors iCUE for memory leaks and automatically restarts the service.");
                 x.SetDisplayName("iCUE Plumber");
                 x.SetServiceName("iCUEPlumber");
+
+                x.AddCommandLineDefinition("s", v => serviceName = v);
+                x.AddCommandLineDefinition("m", v => memoryLimit = long.Parse(v));
+                x.AddCommandLineDefinition("r", v => pollingRate = double.Parse(v));
+                x.ApplyCommandLine();
+
+                x.Service<ServiceWatcher>(s =>
+                {
+                    s.ConstructUsing(name => new ServiceWatcher(serviceName, pollingRate, memoryLimit, eventLog));
+                    s.WhenStarted(tc => tc.Start());
+                    s.WhenStopped(tc => tc.Stop());
+
+                    Console.WriteLine($"Memory Limit: {memoryLimit}KB");
+                    Console.WriteLine($"Polling Rate: {pollingRate}ms");
+
+                    eventLog.WriteEntry($"iCUE Plumber started with memory limit {memoryLimit}KB and polling rate {pollingRate}ms.", EventLogEntryType.Information);
+                });
             });
 
             var exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
